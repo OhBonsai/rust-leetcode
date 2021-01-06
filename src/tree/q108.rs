@@ -74,9 +74,11 @@ mod tests {
 
     #[test]
     fn test_1() {
-        let nums = vec!(-10,-3,0,5,9);
+        let nums = vec!(-10, -3, 0, 5, 9);
         let tree = Solution::sorted_array_to_bst(nums).unwrap();
+
         println!("{}", (*tree).borrow());
+
         assert_eq!(
             Solution::sorted_array_to_bst(vec![-10, -3, 0, 5, 9]),
             tree![0, -3, 9, -10, null, 5]

@@ -22,25 +22,72 @@ impl TreeNode {
         }
     }
 
-    fn str(&self, mut lvl: usize) -> String {
-        let mut result = format!("|{}{}\x0a", "__".repeat(lvl), self.val);
-        lvl+=1;
-        match (&self.left, &self.right) {
-            (Some(l), Some(r)) => {
-                result.push_str(&(**l).borrow().str(lvl));
-                result.push_str(&(**r).borrow().str(lvl));
-            },
-            (None, Some(r)) => {
-                result.push_str(&format!("|{}null\x0a", "__".repeat(lvl)));
-                result.push_str(&(**r).borrow().str(lvl));
+    pub fn str(&self) -> String {
+        let (lines, _, _, _) = self.draw_aux();
+        lines.join("\n")
+    }
+
+    pub fn draw(&self) {
+        let (lines, _, _, _) = self.draw_aux();
+        lines.iter().map(|x| println!("{}", x)).collect::<()>();
+    }
+
+    fn draw_aux(&self) -> (Vec<String>, usize, usize, usize){
+        return match (&self.left, &self.right) {
+            (None, None) => {
+                let line = format!("{}", self.val);
+                let width = line.len();
+                let height = 1;
+                let mid = width / 2;
+                (vec!(line), width, height, mid)
             },
             (Some(l), None) => {
-                result.push_str(&(**l).borrow().str(lvl));
-                result.push_str(&format!("|{}null\x0a", "__".repeat(lvl)));
+                let (lines, n, p, x) = (**l).borrow().draw_aux();
+                let s = format!("{}", self.val);
+                let u = s.len();
+                let first_line = " ".repeat(x + 1) + &"_".repeat(n - x - 1) + &s;
+                let second_line = " ".repeat(x) + "/" + &" ".repeat(n - x - 1 + u);
+                let mut shifted_lines = lines.iter().map(|x| x.to_owned() + &" ".repeat(u)).collect::<Vec<String>>();
+                shifted_lines.insert(0, first_line);
+                shifted_lines.insert(1, second_line);
+                (shifted_lines, n + u, p + 2, n + u / 2)
             },
-            (None, None) => ()
+
+            (None, Some(r)) => {
+                let (lines, n, p, x) = (**r).borrow().draw_aux();
+                let s = format!("{}", self.val);
+                let u = s.len();
+                let first_line = s + &"_".repeat(x) + &" ".repeat(n - x);
+                let second_line = " ".repeat(u + x) + "\\" + &" ".repeat(n - x - 1);
+                let mut shifted_lines = lines.iter().map(|x| x.to_owned() + &" ".repeat(u)).collect::<Vec<String>>();
+                shifted_lines.insert(0, first_line);
+                shifted_lines.insert(1, second_line);
+                (shifted_lines, n + u, p + 2, n + u / 2)
+            },
+            (Some(l), Some(r)) => {
+                let (mut lefts, n, p, x) = (**l).borrow().draw_aux();
+                let (mut rights, m, q, y) = (**r).borrow().draw_aux();
+                let s = format!("{}", self.val);
+                let u = s.len();
+                let first_line = " ".repeat(x + 1) + &"_".repeat(n - x - 1) + &s + &"_".repeat(y) + &" ".repeat(m - y);
+                let second_line = " ".repeat(x) + "/" + &" ".repeat(n - x - 1 + u + y) + "\\" + &" ".repeat(m - y - 1);
+                if p < q {
+                    for _ in 0..(q - p) {
+                        lefts.push(" ".repeat(n))
+                    }
+                } else if q < p {
+                    for _ in 0..(p - q) {
+                        rights.push(" ".repeat(n))
+                    }
+                }
+
+                let mut shifted_lines: Vec<String> = lefts.iter().zip(rights.iter()).map(|(x, y)| x.to_owned() + &" ".repeat(u) + y).collect();
+                shifted_lines.insert(0, first_line);
+                shifted_lines.insert(1, second_line);
+                (shifted_lines, n + m + u, if p > q { p + 2 } else { q + 2 }, n + u / 2)
+            }
         }
-        result
+
     }
 }
 
@@ -48,7 +95,7 @@ impl TreeNode {
 impl Display for TreeNode {
 
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        write!(f, "{}", self.str(0))
+        write!(f, "{}", self.str())
     }
 }
 
@@ -91,3 +138,5 @@ macro_rules! tree {
 
 
 mod q108;
+mod q95;
+mod q129;
