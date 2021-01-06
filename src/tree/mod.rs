@@ -27,10 +27,6 @@ impl TreeNode {
         lines.join("\n")
     }
 
-    pub fn draw(&self) {
-        let (lines, _, _, _) = self.draw_aux();
-        lines.iter().map(|x| println!("{}", x)).collect::<()>();
-    }
 
     fn draw_aux(&self) -> (Vec<String>, usize, usize, usize){
         return match (&self.left, &self.right) {
