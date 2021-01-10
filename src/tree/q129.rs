@@ -63,7 +63,7 @@ impl Solution {
     }
 
     pub fn sum_numbers(root: Option<Rc<RefCell<TreeNode>>>) -> i32 {
-        fn helper2(r: Option<Rc<RefCell<TreeNode>>>, p: i32) -> Vec<i32> {
+        fn h(r: Option<Rc<RefCell<TreeNode>>>, p: i32) -> Vec<i32> {
             let mut nums = vec!();
             if let Some(v) = r {
                 let val = RefCell::borrow(&v).val + 10 * p ;
@@ -72,8 +72,8 @@ impl Solution {
                 if left_child.is_none() && right_child.is_none() {
                     nums.push(val);
                 } else {
-                    nums.extend(Solution::helper2(left_child, val));
-                    nums.extend(Solution::helper2(right_child, val));
+                    nums.extend(h(left_child, val));
+                    nums.extend(h(right_child, val));
                 }
             }
             nums
