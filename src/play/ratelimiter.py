@@ -15,7 +15,7 @@ PARALLEL SAFE:
 import time
 import threading
 
-from typing import Callable, Optional
+from typing import Callable
 from functools import wraps
 from collections import deque
 from enum import Enum
@@ -105,22 +105,91 @@ def run_when_exceed_timeout(wait: int, until: int):
     print("threading id: {} I am a long time hook".format(threading.get_ident()))
 
 
-@RateLimiter(max_call=2, period=1, exceed_strategy=EStrategy.Sleep, exceed_hook=run_when_exceed)
-def work(*args, **kwargs):
-    print(args, kwargs)
-
-
 def work_timeout(*args, **kwargs):
     print(args, kwargs)
     time.sleep(1)
 
+# ====================================================
+# TEST CASE
+# ====================================================
+import pytest
+
+
+def test_simple_raise():
+    print("\n>>>>>>> log for test_simple_raise")
+
+    result = []
+    limiter = RateLimiter(max_call=2, period=1, exceed_strategy=EStrategy.Raise)
+
+    def worker(*args, **kwargs):
+        print("I am doing something at ", time.time())
+
+    with pytest.raises(Exception):
+        for i in range(3):
+            with limiter:
+                result.append(worker())
+
+    assert len(result) == 2
+
+
+def test_simple_sleep():
+    print("\n>>>>>>> log for test_simple_sleep")
+
+    result = []
+
+    @RateLimiter(max_call=2, period=1, exceed_strategy=EStrategy.Sleep)
+    def work(*args, **kwargs):
+        print("I am doing something at ", time.time())
+
+    def check_after_5_seconds():
+        time.sleep(5)
+        assert len(result) == 10
+        time.sleep(3600)
+
+    t = threading.Thread(target=check_after_5_seconds)
+    t.setDaemon(True)
+    t.start()
+
+    for i in range(11):
+        result.append(work())
+        assert t.is_alive()
+
+    assert len(result) == 11
+
+
+def test_thread_safe():
+    print("\n>>>>>>> log for test_thread_safe")
+
+    result = []
+
+    @RateLimiter(max_call=2, period=1, exceed_strategy=EStrategy.Sleep)
+    def work(*args, **kwargs):
+        print("I am doing something at ", time.time())
+
+    def check_after_5_seconds():
+        time.sleep(5)
+        assert len(result) == 10
+        time.sleep(3600)
+
+    def thread_work():
+        for _ in range(2):
+            result.append(work())
+
+    t = threading.Thread(target=check_after_5_seconds)
+    t.setDaemon(True)
+    t.start()
+
+    w = threading.Thread(target=thread_work)
+    w.setDaemon(True)
+    w.start()
+
+    for _ in range(11):
+        result.append(work())
+        assert t.is_alive()
+
+    assert len(result) == 13
+
 
 if __name__ == "__main__":
+    pytest.main(["./ratelimiter.py", "-v", "-s"])
 
-    for i in range(30):
-        t = threading.Thread(target=work, args=(1,2), kwargs={"a": 3})
-        t.setDaemon(True)
-        t.start()
-
-    for i in range(100):
-        work(1, 2, a=3)
