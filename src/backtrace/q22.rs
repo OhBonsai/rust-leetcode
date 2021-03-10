@@ -35,26 +35,6 @@ impl Solution {
             ret
         }
 
-
-        fn check_legal(s: &str) -> bool {
-            let mut clause = 0;
-            for v in s.chars() {
-                if v == '(' {
-                    clause += 1;
-                } else {
-                    clause -= 1;
-                }
-
-                if clause < 0 {
-                    return false;
-                }
-            };
-
-            println!("{:?}", clause==0);
-            clause == 0
-        }
-
-
         nest_function("(".to_owned(), 1, 0 ,n)
     }
 
