@@ -15,10 +15,6 @@ impl Solution {
 
 
     fn backtrace(nums: &Vec<i32>, arr: &mut Vec<i32>, ans: &mut Vec<Vec<i32>>) {
-
-
-
-
         if arr.len() == nums.len() {
             ans.push(arr.clone());
         } else {
@@ -30,8 +26,6 @@ impl Solution {
                     arr.pop();
                 }
             }
-
-
         }
     }
 
