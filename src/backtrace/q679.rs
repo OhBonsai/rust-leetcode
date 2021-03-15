@@ -6,7 +6,7 @@ impl Solution {
             let len = nums.len();
 
             if len == 1 {
-                return nums[0] == 24_f32
+                return (nums[0] - 24_f32).abs() < 1.0e-6;
             }
 
             for i in 0..len {
@@ -19,7 +19,6 @@ impl Solution {
                             }
                         }
 
-
                         let mut new_nums_add = new_nums.clone();
                         new_nums_add.push(nums[i] + nums[j]);
                         if helpers(new_nums_add) {
@@ -30,6 +29,12 @@ impl Solution {
                         let mut new_nums_sub = new_nums.clone();
                         new_nums_sub.push(nums[i] - nums[j]);
                         if helpers(new_nums_sub) {
+                            return true
+                        }
+
+                        let mut new_nums_res_sub = new_nums.clone();
+                        new_nums_res_sub.push(nums[j] - nums[i]);
+                        if helpers(new_nums_res_sub) {
                             return true
                         }
 
@@ -47,6 +52,13 @@ impl Solution {
                             }
                         }
 
+                        if nums[i] != 0_f32 {
+                            let mut new_nums_res_div = new_nums.clone();
+                            new_nums_res_div.push(nums[j] / nums[i]);
+                            if helpers(new_nums_res_div) {
+                                return true
+                            }
+                        }
 
                     }
 
@@ -56,7 +68,6 @@ impl Solution {
 
             false
         }
-
 
         helpers(
             nums.into_iter()
@@ -78,6 +89,7 @@ mod tests {
     #[test]fn it_works() {
 
         assert!(Solution::judge_point24(vec![4, 1, 8, 7]));
+        assert!(Solution::judge_point24(vec![3, 3, 8 , 8]));
         assert!(Solution::judge_point24(vec![1, 9, 1, 2]));
         assert_eq!(Solution::judge_point24(vec![1,2,1,2]), false);
 
