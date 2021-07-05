@@ -1,4 +1,3 @@
-use std::io::{self, Write};
 
 struct Solution ();
 impl Solution {
