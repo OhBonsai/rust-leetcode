@@ -1,6 +1,40 @@
 struct Solution ();
 impl Solution {
-    pub fn sorted_squares(nums: Vec<i32>) -> Vec<i32> {
+
+        pub fn sorted_squares(nums: Vec<i32>) -> Vec<i32> {
+            let n = nums.len();
+
+            if n == 0 {
+                return vec![]
+            }
+
+
+            let mut p1 = 0;
+            let mut p2 = n - 1;
+            let mut result = vec![];
+
+            while p1 != p2 {
+                let l = nums[p1] * nums[p1];
+                let r = nums[p2] * nums[p2];
+
+                if l <= r {
+                    p2 = p2 - 1;
+                    result.push(r)
+                }
+
+                if l >= r {
+                    p1 = p1 + 1;
+                    result.push(l)
+                }
+            }
+
+            result.push(nums[p1] * nums[p1]);
+            result.into_iter().rev().collect()
+        }
+
+
+
+        pub fn sorted_squares2(nums: Vec<i32>) -> Vec<i32> {
         let n = nums.len();
 
         if n == 0 {
@@ -82,7 +116,7 @@ mod tests {
     use super::*;
 
     #[test] fn test_1() {
-        // assert_eq!(Solution::sorted_squares(vec![-4,-1,0,3,10]), vec![0,1,9,16,100]);
+        assert_eq!(Solution::sorted_squares(vec![-4,-1,0,3,10]), vec![0,1,9,16,100]);
         assert_eq!(Solution::sorted_squares(vec![-3,0,2]), vec![0,4, 9])
 
     }
