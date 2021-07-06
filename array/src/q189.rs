@@ -18,9 +18,11 @@ impl Solution {
     }
 
     pub fn rotate(nums: &mut Vec<i32>, k: i32) {
+        let x = k % nums.len();
+
         nums.reverse();
-        nums[0..k as usize].reverse();
-        nums[k as usize..].reverse();
+        nums[0..x as usize].reverse();
+        nums[x as usize..].reverse();
     }
 
 }
