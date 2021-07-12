@@ -1,29 +1,30 @@
-struct Solution ();
+struct Solution();
+
 impl Solution {
     pub fn reverse_words(s: String) -> String {
-
         let mut v = s.into_bytes();
-        let (mut left, mut right) = (0, 0);
+        let (mut l, mut r) = (0, 0);
 
-        while right < v.len() {
-            while right < v.len() && v[right] != ' ' as u8 {
-                right += 1
+
+        while r < v.len() {
+            while r < v.len() && v[r] != ' ' as u8   {
+                r += 1;
             }
 
-            let next = right + 1;
+            let new_pos = r + 1;
 
-            while left < right {
+            while l < r {
                 unsafe {
-                    std::ptr::swap(&mut v[right -1], &mut v[left]);
+                    std::ptr::swap(&mut v[l], &mut v[r-1]);
+                    l += 1;
+                    r -= 1;
                 }
-                left += 1;
-                right -= 1;
             }
 
-            left = next;
-            right = next;
-        }
 
+            l = new_pos;
+            r = new_pos;
+        }
         String::from_utf8(v).unwrap()
     }
 }
@@ -32,14 +33,10 @@ impl Solution {
 mod tests {
     use super::*;
 
-    #[test] fn test_1() {
-
-
-
+    #[test]
+    fn test_1() {
         assert_eq!(
             Solution::reverse_words(String::from("Let's take LeetCode contest")),
             String::from("s'teL ekat edoCteeL tsetnoc"))
     }
-
-
 }
